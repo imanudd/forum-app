@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/golang/mock/gomock"
-	"github.com/imanudd/inventorySvc-clean-architecture/config"
-	"github.com/imanudd/inventorySvc-clean-architecture/internal/domain"
-	repositoryMock "github.com/imanudd/inventorySvc-clean-architecture/shared/mock/repository"
+	"github.com/imanudd/forum-app/config"
+	"github.com/imanudd/forum-app/internal/domain"
+	repositoryMock "github.com/imanudd/forum-app/shared/mock/repository"
 	. "github.com/smartystreets/goconvey/convey"
 )
 

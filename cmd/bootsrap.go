@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/elastic/go-elasticsearch/v8"
-	"github.com/imanudd/inventorySvc-clean-architecture/config"
+	"github.com/imanudd/forum-app/config"
 	_ "github.com/lib/pq"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

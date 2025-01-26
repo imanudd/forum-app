@@ -13,14 +13,14 @@ import (
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
-	_ "github.com/imanudd/inventorySvc-clean-architecture/docs"
+	_ "github.com/imanudd/forum-app/docs"
 
 	"github.com/gin-gonic/gin"
-	"github.com/imanudd/inventorySvc-clean-architecture/config"
-	"github.com/imanudd/inventorySvc-clean-architecture/internal/delivery/http/handler"
-	"github.com/imanudd/inventorySvc-clean-architecture/internal/delivery/http/middleware"
-	"github.com/imanudd/inventorySvc-clean-architecture/internal/repository"
-	"github.com/imanudd/inventorySvc-clean-architecture/internal/usecase"
+	"github.com/imanudd/forum-app/config"
+	"github.com/imanudd/forum-app/internal/delivery/http/handler"
+	"github.com/imanudd/forum-app/internal/delivery/http/middleware"
+	"github.com/imanudd/forum-app/internal/repository"
+	"github.com/imanudd/forum-app/internal/usecase"
 )
 
 // NewRest

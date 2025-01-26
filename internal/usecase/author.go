@@ -7,10 +7,10 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
-	"github.com/imanudd/inventorySvc-clean-architecture/config"
-	"github.com/imanudd/inventorySvc-clean-architecture/internal/domain"
-	"github.com/imanudd/inventorySvc-clean-architecture/internal/repository"
-	"github.com/imanudd/inventorySvc-clean-architecture/pkg/validator"
+	"github.com/imanudd/forum-app/config"
+	"github.com/imanudd/forum-app/internal/domain"
+	"github.com/imanudd/forum-app/internal/repository"
+	"github.com/imanudd/forum-app/pkg/validator"
 )
 
 type AuthorUseCaseImpl interface {

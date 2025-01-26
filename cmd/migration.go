@@ -3,8 +3,8 @@ package cmd
 import (
 	"log"
 
-	"github.com/imanudd/inventorySvc-clean-architecture/config"
-	migration "github.com/imanudd/inventorySvc-clean-architecture/database"
+	"github.com/imanudd/forum-app/config"
+	migration "github.com/imanudd/forum-app/database"
 	"github.com/spf13/cobra"
 )
 

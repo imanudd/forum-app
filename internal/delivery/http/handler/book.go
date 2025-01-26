@@ -5,8 +5,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/imanudd/inventorySvc-clean-architecture/internal/delivery/http/helper"
-	"github.com/imanudd/inventorySvc-clean-architecture/internal/domain"
+	"github.com/imanudd/forum-app/internal/delivery/http/helper"
+	"github.com/imanudd/forum-app/internal/domain"
 )
 
 // AddBook handler

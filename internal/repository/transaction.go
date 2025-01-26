@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/imanudd/inventorySvc-clean-architecture/pkg/auth"
+	"github.com/imanudd/forum-app/pkg/auth"
 	"gorm.io/gorm"
 )
 

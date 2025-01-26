@@ -8,8 +8,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/imanudd/inventorySvc-clean-architecture/config"
-	"github.com/imanudd/inventorySvc-clean-architecture/internal/domain"
+	"github.com/imanudd/forum-app/config"
+	"github.com/imanudd/forum-app/internal/domain"
 	"gorm.io/gorm"
 )
 

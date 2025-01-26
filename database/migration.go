@@ -3,7 +3,8 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"github.com/imanudd/inventorySvc-clean-architecture/config"
+
+	"github.com/imanudd/forum-app/config"
 	migrate "github.com/rubenv/sql-migrate"
 )
 

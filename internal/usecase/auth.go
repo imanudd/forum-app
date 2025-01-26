@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 
-	"github.com/imanudd/inventorySvc-clean-architecture/config"
-	"github.com/imanudd/inventorySvc-clean-architecture/internal/domain"
-	"github.com/imanudd/inventorySvc-clean-architecture/internal/repository"
-	"github.com/imanudd/inventorySvc-clean-architecture/pkg/auth"
-	"github.com/imanudd/inventorySvc-clean-architecture/pkg/validator"
+	"github.com/imanudd/forum-app/config"
+	"github.com/imanudd/forum-app/internal/domain"
+	"github.com/imanudd/forum-app/internal/repository"
+	"github.com/imanudd/forum-app/pkg/auth"
+	"github.com/imanudd/forum-app/pkg/validator"
 	"golang.org/x/crypto/bcrypt"
 )
 

@@ -3,11 +3,11 @@ package cmd
 import (
 	"log"
 
-	"github.com/imanudd/inventorySvc-clean-architecture/config"
-	rest "github.com/imanudd/inventorySvc-clean-architecture/internal/delivery/http"
-	"github.com/imanudd/inventorySvc-clean-architecture/internal/repository"
-	"github.com/imanudd/inventorySvc-clean-architecture/internal/usecase"
-	"github.com/imanudd/inventorySvc-clean-architecture/pkg/elasticsearch"
+	"github.com/imanudd/forum-app/config"
+	rest "github.com/imanudd/forum-app/internal/delivery/http"
+	"github.com/imanudd/forum-app/internal/repository"
+	"github.com/imanudd/forum-app/internal/usecase"
+	"github.com/imanudd/forum-app/pkg/elasticsearch"
 	"github.com/spf13/cobra"
 )
 

@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/imanudd/inventorySvc-clean-architecture/internal/domain"
-	"github.com/imanudd/inventorySvc-clean-architecture/pkg/auth"
+	"github.com/imanudd/forum-app/internal/domain"
+	"github.com/imanudd/forum-app/pkg/auth"
 	"gorm.io/gorm"
 )
 

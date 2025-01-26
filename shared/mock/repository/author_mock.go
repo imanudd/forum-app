@@ -9,7 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	domain "github.com/imanudd/inventorySvc-clean-architecture/internal/domain"
+	domain "github.com/imanudd/forum-app/internal/domain"
 )
 
 // MockAuthorRepositoryImpl is a mock of AuthorRepositoryImpl interface.
