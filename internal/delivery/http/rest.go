@@ -18,7 +18,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/imanudd/forum-app/config"
 	"github.com/imanudd/forum-app/internal/delivery/http/handler"
-	"github.com/imanudd/forum-app/internal/delivery/http/middleware"
 	"github.com/imanudd/forum-app/internal/repository"
 	"github.com/imanudd/forum-app/internal/usecase"
 )
@@ -39,8 +38,8 @@ import (
 // @in header
 // @name authorization
 
-func NewRest(cfg *config.MainConfig) *gin.Engine {
-	if cfg.Environment != "production" {
+func NewRest(cfg *config.Config) *gin.Engine {
+	if cfg.Service.Environment != "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
@@ -63,9 +62,9 @@ func NewRest(cfg *config.MainConfig) *gin.Engine {
 	return app
 }
 
-func Serve(app *gin.Engine, cfg *config.MainConfig) (err error) {
+func Serve(app *gin.Engine, cfg *config.Config) (err error) {
 	server := &http.Server{
-		Addr:    fmt.Sprintf(":%d", cfg.ServicePort),
+		Addr:    fmt.Sprintf(":%s", cfg.Service.Port),
 		Handler: app,
 	}
 
@@ -77,14 +76,14 @@ func Serve(app *gin.Engine, cfg *config.MainConfig) (err error) {
 
 	log.Println("-------------------------------------------")
 	log.Println("server started")
-	log.Printf("running on port %d\n", cfg.ServicePort)
+	log.Printf("running on port %s\n", cfg.Service.Port)
 	log.Println("-------------------------------------------")
 
 	return gracefulShutdown(server)
 }
 
 func gracefulShutdown(srv *http.Server) error {
-	done := make(chan os.Signal)
+	done := make(chan os.Signal, 1)
 
 	signal.Notify(done, syscall.SIGINT, syscall.SIGTERM)
 
@@ -105,38 +104,22 @@ func gracefulShutdown(srv *http.Server) error {
 }
 
 type Route struct {
-	Config        *config.MainConfig
-	App           *gin.Engine
-	AuthUseCase   usecase.AuthUseCaseImpl
-	BookUseCase   usecase.BookUseCaseImpl
-	AuthorUseCase usecase.AuthorUseCaseImpl
-	UserRepo      repository.UserRepositoryImpl
+	Config      *config.Config
+	App         *gin.Engine
+	AuthUseCase usecase.AuthUseCaseImpl
+	UserRepo    repository.UserRepositoryImpl
 }
 
 func (r *Route) RegisterRoutes() {
 	r.App.Use(gin.Recovery())
 
-	auth := middleware.NewAuthMiddleware(r.Config, r.UserRepo)
+	// auth := middleware.NewAuthMiddleware(r.Config, r.UserRepo)
 
 	handler := handler.NewHandler(&handler.Handler{
-		AuthUseCase:   r.AuthUseCase,
-		BookUseCase:   r.BookUseCase,
-		AuthorUseCase: r.AuthorUseCase,
+		AuthUseCase: r.AuthUseCase,
 	})
 
 	inventorySvc := r.App.Group("/inventorysvc")
 	inventorySvc.POST("/auth/register", handler.Register)
 	inventorySvc.POST("/auth/login", handler.Login)
-
-	inventorySvc.POST("/managements/book", auth.JWTAuth(handler.AddBook))
-	inventorySvc.PUT("/managements/book/:id", auth.JWTAuth(handler.UpdateBook))
-	inventorySvc.DELETE("/managements/book/:id", auth.JWTAuth(handler.DeleteBook))
-	inventorySvc.GET("/managements/book/:id", auth.JWTAuth(handler.GetDetailBook))
-
-	inventorySvc.POST("/managements/author/book", auth.JWTAuth(handler.CreateAuthorAndBook))
-	inventorySvc.POST("/managements/author", auth.JWTAuth(handler.CreateAuthor))
-	inventorySvc.POST("/managements/author/:id", auth.JWTAuth(handler.AddAuthorBook))
-	inventorySvc.GET("/managements/author/:id/list", auth.JWTAuth(handler.GetListBookByAuthor))
-	inventorySvc.DELETE("managements/author/:id/books/:bookid", auth.JWTAuth(handler.DeleteBookByAuthor))
-
 }

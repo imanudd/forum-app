@@ -20,6 +20,7 @@ func Run() {
 	migrateCmd.AddCommand(migrateUpCmd)
 	migrateCmd.AddCommand(migrateDownCmd)
 	migrateCmd.AddCommand(migrateFreshCmd)
+	migrateCmd.AddCommand(migrateCreateCmd)
 
 	rootCommand.AddCommand(migrateCmd)
 	rootCommand.AddCommand(restCommand)

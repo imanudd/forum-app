@@ -1,15 +1,19 @@
 
-.PHONY: migrate-up
-migrate-up:
-	@go run main.go migrate up
+.PHONY: migration-up
+migration-up:
+	@go run main.go migration up
 
-.PHONY: migrate-down
-migrate-down:
-	@go run main.go migrate down
+.PHONY: migration-down
+migration-down:
+	@go run main.go migration down
 
-.PHONY: migrate-fresh
-migrate-fresh:
-	@go run main.go migrate fresh
+.PHONY: migration-fresh
+migration-fresh:
+	@go run main.go migration fresh
+
+.PHONY: migration-create
+migration-create:
+	@go run main.go migration create $(name)
 
 run : 
 	go run main.go rest

@@ -1,0 +1,13 @@
+service:
+  name: "forum-app"         
+  port: "8000"               
+  environment: "development" 
+  migrationDir: "./database/migrations" 
+  signatureKey: "secret" 
+
+db:
+  host: "localhost"          
+  port: "3306"              
+  username: "root"          
+  password: "root"       
+  dbname: "forumdb"     

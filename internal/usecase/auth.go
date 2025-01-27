@@ -18,15 +18,13 @@ type AuthUseCaseImpl interface {
 }
 
 type authUseCase struct {
-	cfg      *config.MainConfig
-	trx      repository.TransactionRepositoryImpl
+	cfg      *config.Config
 	userRepo repository.UserRepositoryImpl
 }
 
-func NewAuthUseCase(cfg *config.MainConfig, trx repository.TransactionRepositoryImpl, userRepo repository.UserRepositoryImpl) AuthUseCaseImpl {
+func NewAuthUseCase(cfg *config.Config, userRepo repository.UserRepositoryImpl) AuthUseCaseImpl {
 	return &authUseCase{
 		cfg:      cfg,
-		trx:      trx,
 		userRepo: userRepo,
 	}
 }

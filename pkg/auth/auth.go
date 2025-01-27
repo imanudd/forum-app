@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"strconv"
 	"time"
@@ -10,7 +11,6 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/imanudd/forum-app/config"
 	"github.com/imanudd/forum-app/internal/domain"
-	"gorm.io/gorm"
 )
 
 const (
@@ -24,10 +24,10 @@ type AuthMiddleware interface {
 }
 
 type AuthJwt struct {
-	config *config.MainConfig
+	config *config.Config
 }
 
-func NewAuth(cfg *config.MainConfig) AuthMiddleware {
+func NewAuth(cfg *config.Config) AuthMiddleware {
 	return &AuthJwt{
 		config: cfg,
 	}
@@ -43,7 +43,7 @@ type MyClaims struct {
 func (a AuthJwt) GenerateToken(user *domain.User) (string, error) {
 	claims := MyClaims{
 		StandardClaims: jwt.StandardClaims{
-			Issuer:    a.config.ServiceName,
+			Issuer:    a.config.Service.Name,
 			ExpiresAt: time.Now().Add(time.Duration(1) * time.Hour).Unix(),
 		},
 		UserID:   user.ID,
@@ -53,7 +53,7 @@ func (a AuthJwt) GenerateToken(user *domain.User) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	signedToken, err := token.SignedString([]byte(a.config.SignatureKey))
+	signedToken, err := token.SignedString([]byte(a.config.Service.SignatureKey))
 	if err != nil {
 		return "", err
 	}
@@ -67,7 +67,7 @@ func (a *AuthJwt) VerifyToken(tokenStr string) (userID int64, err error) {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 
-		return []byte(a.config.SignatureKey), nil
+		return []byte(a.config.Service.SignatureKey), nil
 	})
 	if err != nil {
 		return userID, err
@@ -101,7 +101,7 @@ func SetTokenContext(c *gin.Context, token string) {
 	c.Set(tokenKey, token)
 }
 
-func SetTrx(ctx context.Context, tx *gorm.DB) context.Context {
+func SetTrx(ctx context.Context, tx *sql.Tx) context.Context {
 	return context.WithValue(ctx, "tx", tx)
 }
 
@@ -122,8 +122,8 @@ func GetUserContext(ctx context.Context) *domain.User {
 	return nil
 }
 
-func GetTxContext(ctx context.Context) *gorm.DB {
-	raw, ok := ctx.Value("tx").(*gorm.DB)
+func GetTxContext(ctx context.Context) *sql.Tx {
+	raw, ok := ctx.Value("tx").(*sql.Tx)
 	if ok {
 		return raw
 	}

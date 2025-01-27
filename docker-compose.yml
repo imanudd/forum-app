@@ -1,8 +1,8 @@
 version: "3.8"
 services:
-  inventorybook-svc:
-    container_name: "inventorybook-svc"
-    image: "inventorybook-svc"
+  forum-app:
+    container_name: "forum-app"
+    image: "forum-app"
     build:
       context: .
       dockerfile: "build/Dockerfile"
@@ -11,7 +11,7 @@ services:
     restart: "on-failure"
     environment:
       - PGSQL_HOST=host.docker.internal
-      - PGSQL_PORT=5432
+      - PGSQL_PORT=3306
       - PGSQL_USERNAME=root
       - PGSQL_PASSWORD=root
-      - PGSQL_DBNAME=inventorybook
+      - PGSQL_DBNAME=forumdb

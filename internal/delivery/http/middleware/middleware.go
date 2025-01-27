@@ -12,11 +12,11 @@ import (
 )
 
 type AuthMiddleware struct {
-	cfg  *config.MainConfig
+	cfg  *config.Config
 	repo repository.UserRepositoryImpl
 }
 
-func NewAuthMiddleware(cfg *config.MainConfig, repo repository.UserRepositoryImpl) *AuthMiddleware {
+func NewAuthMiddleware(cfg *config.Config, repo repository.UserRepositoryImpl) *AuthMiddleware {
 	return &AuthMiddleware{
 		cfg:  cfg,
 		repo: repo,

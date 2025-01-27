@@ -7,46 +7,34 @@ import (
 	rest "github.com/imanudd/forum-app/internal/delivery/http"
 	"github.com/imanudd/forum-app/internal/repository"
 	"github.com/imanudd/forum-app/internal/usecase"
-	"github.com/imanudd/forum-app/pkg/elasticsearch"
 	"github.com/spf13/cobra"
 )
 
 var restCommand = &cobra.Command{
 	Use: "rest",
 	Run: func(cmd *cobra.Command, args []string) {
-		cfg := config.Get()
+		var cfg *config.Config
 
-		pgDB := InitPostgreSQL(cfg)
-
-		if cfg.LogMode {
-			pgDB = pgDB.Debug()
+		if err := config.InitConfig(); err != nil {
+			log.Fatalln(" failed to initialize config", err.Error())
 		}
 
-		client := InitElastic(cfg)
-
-		//init elasticsearch
-		es := elasticsearch.New(client)
+		cfg = config.Get()
+		mySQL := NewMysql(cfg)
 
 		app := rest.NewRest(cfg)
 
 		//init repo
-		userRepo := repository.NewUserRepository(pgDB)
-		bookRepo := repository.NewBookRepository(pgDB)
-		authorRepo := repository.NewAuthorRepository(pgDB)
-		trx := repository.NewTransactionRepository(pgDB)
+		userRepo := repository.NewUserRepository(mySQL)
 
 		//init usecase
-		authUseCase := usecase.NewAuthUseCase(cfg, trx, userRepo)
-		bookUseCase := usecase.NewBookUseCase(cfg, es, trx, bookRepo, authorRepo)
-		authorUseCase := usecase.NewAuthorUseCase(cfg, trx, authorRepo, bookRepo)
+		authUseCase := usecase.NewAuthUseCase(cfg, userRepo)
 
 		route := &rest.Route{
-			Config:        cfg,
-			App:           app,
-			AuthUseCase:   authUseCase,
-			BookUseCase:   bookUseCase,
-			AuthorUseCase: authorUseCase,
-			UserRepo:      userRepo,
+			Config:      cfg,
+			App:         app,
+			AuthUseCase: authUseCase,
+			UserRepo:    userRepo,
 		}
 
 		route.RegisterRoutes()
