@@ -13,7 +13,7 @@ import (
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
-	_ "github.com/imanudd/forum-app/docs"
+	// _ "github.com/imanudd/forum-app/docs"
 
 	"github.com/gin-gonic/gin"
 	"github.com/imanudd/forum-app/config"
@@ -23,9 +23,9 @@ import (
 )
 
 // NewRest
-// @title Inventory Service API
+// @title Forum Service API
 // @version 1.0
-// @description Inventory Service API
+// @description Forum Service API
 // @termsOfService http://swagger.io/terms/
 // @contact.name API Support
 // @contact.url http://www.swagger.io/support
@@ -104,22 +104,32 @@ func gracefulShutdown(srv *http.Server) error {
 }
 
 type Route struct {
-	Config      *config.Config
-	App         *gin.Engine
-	AuthUseCase usecase.AuthUseCaseImpl
-	UserRepo    repository.UserRepositoryImpl
+	Config         *config.Config
+	App            *gin.Engine
+	AuthMiddleware gin.HandlerFunc
+	AuthUseCase    usecase.AuthUseCaseImpl
+	UserRepo       repository.UserRepositoryImpl
+	PostUseCase    usecase.PostUseCaseImpl
 }
 
 func (r *Route) RegisterRoutes() {
 	r.App.Use(gin.Recovery())
 
-	// auth := middleware.NewAuthMiddleware(r.Config, r.UserRepo)
-
 	handler := handler.NewHandler(&handler.Handler{
 		AuthUseCase: r.AuthUseCase,
+		PostUseCase: r.PostUseCase,
 	})
 
-	inventorySvc := r.App.Group("/inventorysvc")
-	inventorySvc.POST("/auth/register", handler.Register)
-	inventorySvc.POST("/auth/login", handler.Login)
+	forumsvc := r.App.Group("/forumsvc")
+	forumsvc.POST("/auth/signup", handler.SignUp)
+	forumsvc.POST("/auth/login", handler.Login)
+
+	forumsvc.Use(r.AuthMiddleware)
+	forumsvc.POST("/refresh-token/validate", handler.ValidateRefreshToken)
+
+	postGroup := forumsvc.Group("posts")
+	postGroup.GET("", handler.GetListPost)
+	postGroup.POST("", handler.CreatePost)
+	postGroup.POST("/comment/:postId", handler.CreateCommentOnPost)
+	postGroup.PUT("/user-activity/:postId", handler.UpsertUserActivity)
 }

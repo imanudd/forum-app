@@ -2,7 +2,9 @@ package auth
 
 import (
 	"context"
+	"crypto/rand"
 	"database/sql"
+	"encoding/hex"
 	"fmt"
 	"strconv"
 	"time"
@@ -21,6 +23,7 @@ const (
 type AuthMiddleware interface {
 	VerifyToken(tokenStr string) (userID int64, err error)
 	GenerateToken(user *domain.User) (string, error)
+	GenerateRefreshToken() string
 }
 
 type AuthJwt struct {
@@ -35,9 +38,19 @@ func NewAuth(cfg *config.Config) AuthMiddleware {
 
 type MyClaims struct {
 	jwt.StandardClaims
-	UserID   int    `json:"user_id"`
+	UserID   int64  `json:"user_id"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
+}
+
+func (a AuthJwt) GenerateRefreshToken() string {
+	b := make([]byte, 18)
+	_, err := rand.Read(b)
+	if err != nil {
+		return ""
+	}
+
+	return hex.EncodeToString(b)
 }
 
 func (a AuthJwt) GenerateToken(user *domain.User) (string, error) {
@@ -46,7 +59,7 @@ func (a AuthJwt) GenerateToken(user *domain.User) (string, error) {
 			Issuer:    a.config.Service.Name,
 			ExpiresAt: time.Now().Add(time.Duration(1) * time.Hour).Unix(),
 		},
-		UserID:   user.ID,
+		UserID:   user.Id,
 		Username: user.Username,
 		Email:    user.Email,
 	}

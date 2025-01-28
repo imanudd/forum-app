@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/imanudd/forum-app/config"
 	"github.com/imanudd/forum-app/internal/domain"
@@ -14,22 +15,61 @@ import (
 
 type AuthUseCaseImpl interface {
 	Login(ctx context.Context, req *domain.LoginRequest) (*domain.LoginResponse, error)
-	Register(ctx context.Context, req *domain.RegisterRequest) (err error)
+	SignUp(ctx context.Context, req *domain.SignUpRequest) (err error)
+	ValidateRefreshToken(ctx context.Context, req *domain.ValidateRefreshTokenRequest) (*domain.ValidateRefreshTokenResponse, error)
 }
 
 type authUseCase struct {
-	cfg      *config.Config
-	userRepo repository.UserRepositoryImpl
+	cfg              *config.Config
+	userRepo         repository.UserRepositoryImpl
+	refreshTokenRepo repository.RefreshTokenRepositoryImpl
 }
 
-func NewAuthUseCase(cfg *config.Config, userRepo repository.UserRepositoryImpl) AuthUseCaseImpl {
+func NewAuthUseCase(cfg *config.Config, userRepo repository.UserRepositoryImpl, refreshTokenRepo repository.RefreshTokenRepositoryImpl) AuthUseCaseImpl {
 	return &authUseCase{
-		cfg:      cfg,
-		userRepo: userRepo,
+		cfg:              cfg,
+		userRepo:         userRepo,
+		refreshTokenRepo: refreshTokenRepo,
 	}
 }
 
+func (a *authUseCase) ValidateRefreshToken(ctx context.Context, req *domain.ValidateRefreshTokenRequest) (*domain.ValidateRefreshTokenResponse, error) {
+	if err := validator.ValidateStruct(req); err != nil {
+		return nil, err
+	}
+
+	var resp domain.ValidateRefreshTokenResponse
+
+	user := auth.GetUserContext(ctx)
+
+	refreshToken, err := a.refreshTokenRepo.GetLatest(ctx, user.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	if refreshToken == nil {
+		return nil, errors.New("refresh token is expired")
+	}
+
+	if refreshToken.RefreshToken != req.RefreshToken {
+		return nil, errors.New("refresh token is invalid")
+	}
+
+	auth := auth.NewAuth(a.cfg)
+	resp.Token, err = auth.GenerateToken(user)
+	if err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+
+}
+
 func (a *authUseCase) Login(ctx context.Context, req *domain.LoginRequest) (*domain.LoginResponse, error) {
+	response := domain.LoginResponse{
+		Username: req.Username,
+	}
+
 	if err := validator.ValidateStruct(req); err != nil {
 		return nil, err
 	}
@@ -51,18 +91,40 @@ func (a *authUseCase) Login(ctx context.Context, req *domain.LoginRequest) (*dom
 	}
 
 	auth := auth.NewAuth(a.cfg)
-	token, err := auth.GenerateToken(user)
+	response.Token, err = auth.GenerateToken(user)
 	if err != nil {
 		return nil, err
 	}
 
-	return &domain.LoginResponse{
-		Username: req.Username,
-		Token:    token,
-	}, nil
+	refreshToken, err := a.refreshTokenRepo.GetLatest(ctx, user.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	if refreshToken != nil {
+		response.RefreshToken = refreshToken.RefreshToken
+		return &response, nil
+	}
+
+	response.RefreshToken = auth.GenerateRefreshToken()
+	err = a.refreshTokenRepo.CreateRefreshToken(ctx, &domain.RefreshToken{
+		UserId:       user.Id,
+		RefreshToken: response.RefreshToken,
+		ExpiredAt:    time.Now().Add(10 * 24 * time.Hour),
+		CreatedAt:    time.Now(),
+		UpdatedAt:    time.Now(),
+		CreatedBy:    user.Username,
+		UpdatedBy:    user.Username,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
 }
 
-func (a *authUseCase) Register(ctx context.Context, req *domain.RegisterRequest) (err error) {
+func (a *authUseCase) SignUp(ctx context.Context, req *domain.SignUpRequest) (err error) {
 	if err := validator.ValidateStruct(req); err != nil {
 		return err
 	}
@@ -83,10 +145,12 @@ func (a *authUseCase) Register(ctx context.Context, req *domain.RegisterRequest)
 		return errors.New("error when hashing password")
 	}
 
-	return a.userRepo.RegisterUser(ctx, &domain.User{
-		Username: req.Username,
-		Password: string(hash),
-		Email:    req.Email,
+	return a.userRepo.CreateUser(ctx, &domain.User{
+		Username:  req.Username,
+		Password:  string(hash),
+		Email:     req.Email,
+		CreatedAt: time.Now(),
+		CreatedBy: req.Username,
 	})
 
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/imanudd/forum-app/config"
 	rest "github.com/imanudd/forum-app/internal/delivery/http"
+	"github.com/imanudd/forum-app/internal/delivery/http/middleware"
 	"github.com/imanudd/forum-app/internal/repository"
 	"github.com/imanudd/forum-app/internal/usecase"
 	"github.com/spf13/cobra"
@@ -26,15 +27,26 @@ var restCommand = &cobra.Command{
 
 		//init repo
 		userRepo := repository.NewUserRepository(mySQL)
+		postRepo := repository.NewPostRepository(mySQL)
+		commentRepo := repository.NewCommentRepository(mySQL)
+		userActivityRepo := repository.NewUserActivityRepository(mySQL)
+		refreshTokenRepo := repository.NewRefreshTokenRepository(mySQL)
 
 		//init usecase
-		authUseCase := usecase.NewAuthUseCase(cfg, userRepo)
+		authUseCase := usecase.NewAuthUseCase(cfg, userRepo, refreshTokenRepo)
+		postUseCase := usecase.NewPostUseCase(cfg, postRepo, commentRepo, userActivityRepo)
+
+		//init middleware
+		authMiddleware := middleware.NewAuthMiddleware(cfg, userRepo)
+		auth := authMiddleware.JWTAuth()
 
 		route := &rest.Route{
-			Config:      cfg,
-			App:         app,
-			AuthUseCase: authUseCase,
-			UserRepo:    userRepo,
+			Config:         cfg,
+			App:            app,
+			AuthMiddleware: auth,
+			AuthUseCase:    authUseCase,
+			UserRepo:       userRepo,
+			PostUseCase:    postUseCase,
 		}
 
 		route.RegisterRoutes()

@@ -6,10 +6,12 @@ import (
 
 type Handler struct {
 	AuthUseCase usecase.AuthUseCaseImpl
+	PostUseCase usecase.PostUseCaseImpl
 }
 
-func NewHandler(useCase *Handler) *Handler {
+func NewHandler(usecase *Handler) *Handler {
 	return &Handler{
-		AuthUseCase: useCase.AuthUseCase,
+		AuthUseCase: usecase.AuthUseCase,
+		PostUseCase: usecase.PostUseCase,
 	}
 }

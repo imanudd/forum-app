@@ -33,6 +33,10 @@ func Error(c *gin.Context, code int, message string) {
 		Message:    message,
 	}
 
+	if code == http.StatusUnauthorized {
+		defer c.Abort()
+	}
+
 	c.JSON(code, hte)
 }
 

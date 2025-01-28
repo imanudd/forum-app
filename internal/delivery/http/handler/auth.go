@@ -8,6 +8,23 @@ import (
 	"github.com/imanudd/forum-app/internal/domain"
 )
 
+func (h *Handler) ValidateRefreshToken(c *gin.Context) {
+	var req domain.ValidateRefreshTokenRequest
+
+	if err := c.ShouldBind(&req); err != nil {
+		helper.Error(c, http.StatusBadRequest, "error bad request")
+		return
+	}
+
+	resp, err := h.AuthUseCase.ValidateRefreshToken(c, &req)
+	if err != nil {
+		helper.InternalError(c, err)
+		return
+	}
+
+	helper.Success(c, http.StatusOK, resp)
+}
+
 // Login handler
 // @Summary login user
 // @Description login user
@@ -18,7 +35,7 @@ import (
 // @Success 200 {object} helper.JSONResponse
 // @Failure 400 {object} helper.JSONResponse
 // @Failure 500 {object} helper.JSONResponse
-// @Router /inventorysvc/auth/login [POST]
+// @Router /forumsvc/auth/login [POST]
 func (h *Handler) Login(c *gin.Context) {
 	var req *domain.LoginRequest
 
@@ -42,20 +59,20 @@ func (h *Handler) Login(c *gin.Context) {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param input body domain.RegisterRequest true "register data"
+// @Param input body domain.SignUpRequest true "register data"
 // @Success 200 {object} helper.JSONResponse
 // @Failure 400 {object} helper.JSONResponse
 // @Failure 500 {object} helper.JSONResponse
-// @Router /inventorysvc/auth/register [POST]
-func (h *Handler) Register(c *gin.Context) {
-	var req *domain.RegisterRequest
+// @Router /forumsvc/auth/signup [POST]
+func (h *Handler) SignUp(c *gin.Context) {
+	var req *domain.SignUpRequest
 
 	if err := c.ShouldBind(&req); err != nil {
 		helper.Error(c, http.StatusBadRequest, "error bad request")
 		return
 	}
 
-	err := h.AuthUseCase.Register(c, req)
+	err := h.AuthUseCase.SignUp(c, req)
 	if err != nil {
 		helper.InternalError(c, err)
 		return

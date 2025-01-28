@@ -23,7 +23,7 @@ func NewAuthMiddleware(cfg *config.Config, repo repository.UserRepositoryImpl) *
 	}
 }
 
-func (m *AuthMiddleware) JWTAuth(h ...gin.HandlerFunc) gin.HandlerFunc {
+func (m *AuthMiddleware) JWTAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("authorization")
 		if authHeader == "" {
@@ -54,11 +54,6 @@ func (m *AuthMiddleware) JWTAuth(h ...gin.HandlerFunc) gin.HandlerFunc {
 
 		auth.SetUserContext(c, user)
 		auth.SetTokenContext(c, token)
-
-		if len(h) > 0 {
-			h[0](c)
-			return
-		}
 
 		c.Next()
 	}
